@@ -1,21 +1,40 @@
-import React, { useState } from "react";
+import React, {
+  useState,
+  useEffect,
+} from "react";
 
 export default function RMHPOS() {
   // =========================
   // DAILY BILL RESET
   // =========================
 
-  const today = new Date().toLocaleDateString("en-GB");
+  const today =
+    new Date().toLocaleDateString(
+      "en-GB"
+    );
 
-  const savedDate = localStorage.getItem("rmh_bill_date");
+  const savedDate =
+    localStorage.getItem(
+      "rmh_bill_date"
+    );
 
   let savedBill = Number(
-    localStorage.getItem("rmh_bill_number") || 0
+    localStorage.getItem(
+      "rmh_bill_number"
+    ) || 0
   );
 
   if (savedDate !== today) {
-    localStorage.setItem("rmh_bill_date", today);
-    localStorage.setItem("rmh_bill_number", 0);
+    localStorage.setItem(
+      "rmh_bill_date",
+      today
+    );
+
+    localStorage.setItem(
+      "rmh_bill_number",
+      0
+    );
+
     savedBill = 0;
   }
 
@@ -23,44 +42,102 @@ export default function RMHPOS() {
   // STATES
   // =========================
 
-  const [billNumber, setBillNumber] = useState(savedBill + 1);
+  const [billNumber, setBillNumber] =
+    useState(savedBill + 1);
 
-  const [customer, setCustomer] = useState("Cash Customer");
+  const [customer, setCustomer] =
+    useState("Cash Customer");
 
-  const [search, setSearch] = useState("");
+  const [search, setSearch] =
+    useState("");
 
-  const [categories, setCategories] = useState([
-    "Bedroom",
-    "Decor",
-    "Living",
-  ]);
+  // =========================
+  // CATEGORY STORAGE
+  // =========================
 
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      name: "Premium Bedsheet",
-      price: 2499,
-      category: "Bedroom",
-    },
+  const [categories, setCategories] =
+    useState(() => {
+      const saved =
+        localStorage.getItem(
+          "rmh_categories"
+        );
 
-    {
-      id: 2,
-      name: "Designer Cushion",
-      price: 699,
-      category: "Decor",
-    },
+      return saved
+        ? JSON.parse(saved)
+        : [
+            "Bedroom",
+            "Decor",
+            "Living",
+          ];
+    });
 
-    {
-      id: 3,
-      name: "Luxury Curtain",
-      price: 3499,
-      category: "Living",
-    },
-  ]);
+  // =========================
+  // PRODUCT STORAGE
+  // =========================
 
-  const [newCategory, setNewCategory] = useState("");
+  const [products, setProducts] =
+    useState(() => {
+      const saved =
+        localStorage.getItem(
+          "rmh_products"
+        );
 
-  const [productName, setProductName] = useState("");
+      return saved
+        ? JSON.parse(saved)
+        : [
+            {
+              id: 1,
+              name:
+                "Premium Bedsheet",
+              price: 2499,
+              category: "Bedroom",
+            },
+
+            {
+              id: 2,
+              name:
+                "Designer Cushion",
+              price: 699,
+              category: "Decor",
+            },
+
+            {
+              id: 3,
+              name:
+                "Luxury Curtain",
+              price: 3499,
+              category: "Living",
+            },
+          ];
+    });
+
+  // =========================
+  // AUTO SAVE
+  // =========================
+
+  useEffect(() => {
+    localStorage.setItem(
+      "rmh_categories",
+      JSON.stringify(categories)
+    );
+  }, [categories]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "rmh_products",
+      JSON.stringify(products)
+    );
+  }, [products]);
+
+  // =========================
+  // OTHER STATES
+  // =========================
+
+  const [newCategory, setNewCategory] =
+    useState("");
+
+  const [productName, setProductName] =
+    useState("");
 
   const [productPrice, setProductPrice] =
     useState("");
@@ -75,42 +152,48 @@ export default function RMHPOS() {
   // =========================
 
   const addCategory = () => {
-    const trimmedCategory =
+    const trimmed =
       newCategory.trim();
 
-    if (!trimmedCategory) return;
+    if (!trimmed) return;
 
     if (
-      categories.includes(trimmedCategory)
+      categories.includes(trimmed)
     ) {
-      alert("Category already exists");
+      alert(
+        "Category already exists"
+      );
+
       return;
     }
 
     setCategories((prev) => [
       ...prev,
-      trimmedCategory,
+      trimmed,
     ]);
 
-    // IMPORTANT FIX
-
-    setProductCategory(trimmedCategory);
+    setProductCategory(trimmed);
 
     setNewCategory("");
 
     alert("Category Added");
   };
 
-  const deleteCategory = (categoryName) => {
+  const deleteCategory = (
+    categoryName
+  ) => {
     setCategories(
       categories.filter(
-        (cat) => cat !== categoryName
+        (cat) =>
+          cat !== categoryName
       )
     );
 
     setProducts(
       products.filter(
-        (p) => p.category !== categoryName
+        (p) =>
+          p.category !==
+          categoryName
       )
     );
   };
@@ -121,25 +204,33 @@ export default function RMHPOS() {
 
   const addProduct = () => {
     if (
-      productName.trim() === "" ||
+      productName.trim() ===
+        "" ||
       productPrice.trim() === ""
     ) {
-      alert("Enter product details");
+      alert(
+        "Enter Product Details"
+      );
+
       return;
     }
 
     const newProduct = {
       id: Date.now(),
 
-      name: productName.trim(),
+      name:
+        productName.trim(),
 
-      price: Number(productPrice),
+      price: Number(
+        productPrice
+      ),
 
-      category: productCategory,
+      category:
+        productCategory,
     };
 
-    setProducts((prevProducts) => [
-      ...prevProducts,
+    setProducts((prev) => [
+      ...prev,
       newProduct,
     ]);
 
@@ -147,13 +238,16 @@ export default function RMHPOS() {
 
     setProductPrice("");
 
-    alert("Product Added Successfully");
+    alert(
+      "Product Added Successfully"
+    );
   };
 
   const deleteProduct = (id) => {
     setProducts(
       products.filter(
-        (product) => product.id !== id
+        (product) =>
+          product.id !== id
       )
     );
   };
@@ -164,19 +258,30 @@ export default function RMHPOS() {
 
   const addToCart = (product) => {
     const existing = cart.find(
-      (item) => item.id === product.id
+      (item) =>
+        item.id === product.id
     );
 
     if (existing) {
       setCart(
         cart.map((item) =>
           item.id === product.id
-            ? { ...item, qty: item.qty + 1 }
+            ? {
+                ...item,
+                qty:
+                  item.qty + 1,
+              }
             : item
         )
       );
     } else {
-      setCart([...cart, { ...product, qty: 1 }]);
+      setCart([
+        ...cart,
+        {
+          ...product,
+          qty: 1,
+        },
+      ]);
     }
   };
 
@@ -184,7 +289,11 @@ export default function RMHPOS() {
     setCart(
       cart.map((item) =>
         item.id === id
-          ? { ...item, qty: item.qty + 1 }
+          ? {
+              ...item,
+              qty:
+                item.qty + 1,
+            }
           : item
       )
     );
@@ -195,10 +304,16 @@ export default function RMHPOS() {
       cart
         .map((item) =>
           item.id === id
-            ? { ...item, qty: item.qty - 1 }
+            ? {
+                ...item,
+                qty:
+                  item.qty - 1,
+              }
             : item
         )
-        .filter((item) => item.qty > 0)
+        .filter(
+          (item) => item.qty > 0
+        )
     );
   };
 
@@ -207,23 +322,29 @@ export default function RMHPOS() {
   // =========================
 
   const subtotal = cart.reduce(
-    (sum, item) => sum + item.price * item.qty,
+    (sum, item) =>
+      sum +
+      item.price * item.qty,
     0
   );
 
-  const gst = subtotal - subtotal / 1.18;
+  const gst =
+    subtotal - subtotal / 1.18;
 
   const total = subtotal;
 
   // =========================
-  // FILTER PRODUCTS
+  // SEARCH
   // =========================
 
-  const filteredProducts = products.filter((p) =>
-    p.name
-      .toLowerCase()
-      .includes(search.toLowerCase())
-  );
+  const filteredProducts =
+    products.filter((p) =>
+      p.name
+        .toLowerCase()
+        .includes(
+          search.toLowerCase()
+        )
+    );
 
   // =========================
   // PRINT RECEIPT
@@ -235,7 +356,11 @@ export default function RMHPOS() {
       billNumber
     );
 
-    const receiptWindow = window.open("", "_blank");
+    const receiptWindow =
+      window.open(
+        "",
+        "_blank"
+      );
 
     receiptWindow.document.write(`
 
@@ -391,7 +516,10 @@ export default function RMHPOS() {
                 </td>
 
                 <td class="right">
-                  ${item.price * item.qty}
+                  ${
+                    item.price *
+                    item.qty
+                  }
                 </td>
 
               </tr>
@@ -415,7 +543,9 @@ export default function RMHPOS() {
             </td>
 
             <td class="right">
-              ₹${gst.toFixed(2)}
+              ₹${gst.toFixed(
+                2
+              )}
             </td>
 
           </tr>
@@ -423,25 +553,13 @@ export default function RMHPOS() {
           <tr>
 
             <td>
-              Subtotal
+              TOTAL
             </td>
 
             <td class="right">
-              ₹${subtotal.toFixed(2)}
-            </td>
-
-          </tr>
-
-          <tr>
-
-            <td>
-              <b>TOTAL</b>
-            </td>
-
-            <td class="right">
-              <b>
-                ₹${total.toFixed(2)}
-              </b>
+              ₹${total.toFixed(
+                2
+              )}
             </td>
 
           </tr>
@@ -461,9 +579,7 @@ export default function RMHPOS() {
         <script>
 
           window.onload = () => {
-
             window.print();
-
           }
 
         </script>
@@ -476,7 +592,9 @@ export default function RMHPOS() {
 
     receiptWindow.document.close();
 
-    setBillNumber(billNumber + 1);
+    setBillNumber(
+      billNumber + 1
+    );
 
     setCart([]);
   };
@@ -490,7 +608,7 @@ export default function RMHPOS() {
         fontFamily: "Arial",
       }}
     >
-      {/* TOPBAR */}
+      {/* HEADER */}
 
       <div
         style={{
@@ -500,7 +618,8 @@ export default function RMHPOS() {
           borderRadius: "20px",
           marginBottom: "20px",
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent:
+            "space-between",
           alignItems: "center",
         }}
       >
@@ -515,7 +634,8 @@ export default function RMHPOS() {
               color: "#f4d28b",
             }}
           >
-            Bill No : {billNumber}
+            Bill No :
+            {billNumber}
           </div>
         </div>
 
@@ -523,7 +643,9 @@ export default function RMHPOS() {
           placeholder="Search Products"
           value={search}
           onChange={(e) =>
-            setSearch(e.target.value)
+            setSearch(
+              e.target.value
+            )
           }
           style={{
             width: "300px",
@@ -540,14 +662,15 @@ export default function RMHPOS() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 420px",
+          gridTemplateColumns:
+            "1fr 420px",
           gap: "20px",
         }}
       >
-        {/* LEFT PANEL */}
+        {/* LEFT */}
 
         <div>
-          {/* ADD CATEGORY */}
+          {/* CATEGORY */}
 
           <div
             style={{
@@ -557,7 +680,11 @@ export default function RMHPOS() {
               marginBottom: "20px",
             }}
           >
-            <h2 style={{ color: "#7b0f1d" }}>
+            <h2
+              style={{
+                color: "#7b0f1d",
+              }}
+            >
               Add Category
             </h2>
 
@@ -571,26 +698,35 @@ export default function RMHPOS() {
                 placeholder="Category Name"
                 value={newCategory}
                 onChange={(e) =>
-                  setNewCategory(e.target.value)
+                  setNewCategory(
+                    e.target.value
+                  )
                 }
                 style={{
                   flex: 1,
                   padding: "12px",
-                  borderRadius: "10px",
-                  border: "1px solid #ccc",
+                  borderRadius:
+                    "10px",
+                  border:
+                    "1px solid #ccc",
                 }}
               />
 
               <button
-                type="button"
-                onClick={addCategory}
+                onClick={
+                  addCategory
+                }
                 style={{
-                  background: "#c89b3c",
+                  background:
+                    "#c89b3c",
                   color: "white",
                   border: "none",
-                  padding: "12px 20px",
-                  borderRadius: "10px",
-                  cursor: "pointer",
+                  padding:
+                    "12px 20px",
+                  borderRadius:
+                    "10px",
+                  cursor:
+                    "pointer",
                 }}
               >
                 Add
@@ -598,7 +734,7 @@ export default function RMHPOS() {
             </div>
           </div>
 
-          {/* ADD PRODUCT */}
+          {/* PRODUCT */}
 
           <div
             style={{
@@ -608,7 +744,11 @@ export default function RMHPOS() {
               marginBottom: "20px",
             }}
           >
-            <h2 style={{ color: "#7b0f1d" }}>
+            <h2
+              style={{
+                color: "#7b0f1d",
+              }}
+            >
               Add Product
             </h2>
 
@@ -616,14 +756,19 @@ export default function RMHPOS() {
               placeholder="Product Name"
               value={productName}
               onChange={(e) =>
-                setProductName(e.target.value)
+                setProductName(
+                  e.target.value
+                )
               }
               style={{
                 width: "100%",
                 padding: "12px",
-                borderRadius: "10px",
-                border: "1px solid #ccc",
-                marginBottom: "12px",
+                borderRadius:
+                  "10px",
+                border:
+                  "1px solid #ccc",
+                marginBottom:
+                  "12px",
               }}
             />
 
@@ -632,19 +777,26 @@ export default function RMHPOS() {
               type="number"
               value={productPrice}
               onChange={(e) =>
-                setProductPrice(e.target.value)
+                setProductPrice(
+                  e.target.value
+                )
               }
               style={{
                 width: "100%",
                 padding: "12px",
-                borderRadius: "10px",
-                border: "1px solid #ccc",
-                marginBottom: "12px",
+                borderRadius:
+                  "10px",
+                border:
+                  "1px solid #ccc",
+                marginBottom:
+                  "12px",
               }}
             />
 
             <select
-              value={productCategory}
+              value={
+                productCategory
+              }
               onChange={(e) =>
                 setProductCategory(
                   e.target.value
@@ -653,181 +805,229 @@ export default function RMHPOS() {
               style={{
                 width: "100%",
                 padding: "12px",
-                borderRadius: "10px",
-                border: "1px solid #ccc",
-                marginBottom: "12px",
+                borderRadius:
+                  "10px",
+                border:
+                  "1px solid #ccc",
+                marginBottom:
+                  "12px",
               }}
             >
-              {categories.map((cat) => (
-                <option key={cat}>
-                  {cat}
-                </option>
-              ))}
+              {categories.map(
+                (cat) => (
+                  <option
+                    key={cat}
+                  >
+                    {cat}
+                  </option>
+                )
+              )}
             </select>
 
             <button
-              type="button"
               onClick={addProduct}
               style={{
                 width: "100%",
-                background: "#7b0f1d",
+                background:
+                  "#7b0f1d",
                 color: "white",
                 border: "none",
                 padding: "14px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontWeight: "bold",
+                borderRadius:
+                  "10px",
+                cursor:
+                  "pointer",
+                fontWeight:
+                  "bold",
               }}
             >
               Add Product
             </button>
           </div>
 
-          {/* CATEGORY DROPDOWNS */}
+          {/* CATEGORY LIST */}
 
-          {categories.map((category) => (
-            <details
-              key={category}
-              open
-              style={{
-                background: "white",
-                borderRadius: "16px",
-                marginBottom: "16px",
-                overflow: "hidden",
-                border: "1px solid #e5e5e5",
-              }}
-            >
-              <summary
+          {categories.map(
+            (category) => (
+              <details
+                key={category}
+                open
                 style={{
-                  listStyle: "none",
-                  cursor: "pointer",
-                  padding: "18px",
-                  background: "#7b0f1d",
-                  color: "white",
-                  fontSize: "18px",
-                  fontWeight: "bold",
-                  display: "flex",
-                  justifyContent:
-                    "space-between",
-                  alignItems: "center",
+                  background:
+                    "white",
+                  borderRadius:
+                    "16px",
+                  marginBottom:
+                    "16px",
+                  overflow:
+                    "hidden",
                 }}
               >
-                <span>{category}</span>
-
-                <span
+                <summary
                   style={{
-                    color: "#f4d28b",
+                    cursor:
+                      "pointer",
+                    padding:
+                      "18px",
+                    background:
+                      "#7b0f1d",
+                    color:
+                      "white",
+                    fontSize:
+                      "18px",
+                    fontWeight:
+                      "bold",
                   }}
                 >
-                  ▼
-                </span>
-              </summary>
-
-              <div
-                style={{
-                  padding: "15px",
-                }}
-              >
-                <button
-                  onClick={() =>
-                    deleteCategory(category)
-                  }
-                  style={{
-                    background: "#ff4d4d",
-                    color: "white",
-                    border: "none",
-                    padding: "8px 14px",
-                    borderRadius: "8px",
-                    marginBottom: "15px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Delete Category
-                </button>
+                  {category}
+                </summary>
 
                 <div
                   style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "10px",
+                    padding:
+                      "15px",
                   }}
                 >
-                  {filteredProducts
-                    .filter(
-                      (p) =>
-                        p.category === category
-                    )
-                    .map((product) => (
-                      <div
-                        key={product.id}
-                        style={{
-                          background: "#faf7f2",
-                          border:
-                            "1px solid #f0d7a1",
-                          borderRadius: "10px",
-                          padding: "12px",
-                          display: "flex",
-                          justifyContent:
-                            "space-between",
-                          alignItems: "center",
-                        }}
-                      >
-                        <div
-                          onClick={() =>
-                            addToCart(product)
-                          }
-                          style={{
-                            cursor: "pointer",
-                            flex: 1,
-                          }}
-                        >
-                          <div
-                            style={{
-                              fontWeight: "600",
-                              fontSize: "15px",
-                            }}
-                          >
-                            {product.name}
-                          </div>
+                  <button
+                    onClick={() =>
+                      deleteCategory(
+                        category
+                      )
+                    }
+                    style={{
+                      background:
+                        "#ff4d4d",
+                      color:
+                        "white",
+                      border:
+                        "none",
+                      padding:
+                        "8px 14px",
+                      borderRadius:
+                        "8px",
+                      marginBottom:
+                        "15px",
+                      cursor:
+                        "pointer",
+                    }}
+                  >
+                    Delete Category
+                  </button>
 
+                  <div
+                    style={{
+                      display:
+                        "flex",
+                      flexDirection:
+                        "column",
+                      gap: "10px",
+                    }}
+                  >
+                    {filteredProducts
+                      .filter(
+                        (p) =>
+                          p.category ===
+                          category
+                      )
+                      .map(
+                        (
+                          product
+                        ) => (
                           <div
-                            style={{
-                              marginTop: "4px",
-                              color: "#7b0f1d",
-                              fontWeight: "bold",
-                              fontSize: "18px",
-                            }}
-                          >
-                            ₹{product.price}
-                          </div>
-                        </div>
-
-                        <button
-                          onClick={() =>
-                            deleteProduct(
+                            key={
                               product.id
-                            )
-                          }
-                          style={{
-                            background: "#ff4d4d",
-                            color: "white",
-                            border: "none",
-                            padding: "8px 12px",
-                            borderRadius: "8px",
-                            cursor: "pointer",
-                          }}
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    ))}
+                            }
+                            style={{
+                              background:
+                                "#faf7f2",
+                              border:
+                                "1px solid #f0d7a1",
+                              borderRadius:
+                                "10px",
+                              padding:
+                                "12px",
+                              display:
+                                "flex",
+                              justifyContent:
+                                "space-between",
+                              alignItems:
+                                "center",
+                            }}
+                          >
+                            <div
+                              onClick={() =>
+                                addToCart(
+                                  product
+                                )
+                              }
+                              style={{
+                                cursor:
+                                  "pointer",
+                                flex: 1,
+                              }}
+                            >
+                              <div
+                                style={{
+                                  fontWeight:
+                                    "600",
+                                }}
+                              >
+                                {
+                                  product.name
+                                }
+                              </div>
+
+                              <div
+                                style={{
+                                  color:
+                                    "#7b0f1d",
+                                  fontWeight:
+                                    "bold",
+                                  marginTop:
+                                    "5px",
+                                }}
+                              >
+                                ₹
+                                {
+                                  product.price
+                                }
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={() =>
+                                deleteProduct(
+                                  product.id
+                                )
+                              }
+                              style={{
+                                background:
+                                  "#ff4d4d",
+                                color:
+                                  "white",
+                                border:
+                                  "none",
+                                padding:
+                                  "8px 12px",
+                                borderRadius:
+                                  "8px",
+                                cursor:
+                                  "pointer",
+                              }}
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        )
+                      )}
+                  </div>
                 </div>
-              </div>
-            </details>
-          ))}
+              </details>
+            )
+          )}
         </div>
 
-        {/* BILL PANEL */}
+        {/* RIGHT */}
 
         <div
           style={{
@@ -838,31 +1038,42 @@ export default function RMHPOS() {
             overflow: "auto",
           }}
         >
-          <h2 style={{ color: "#7b0f1d" }}>
+          <h2
+            style={{
+              color: "#7b0f1d",
+            }}
+          >
             Current Bill
           </h2>
 
           <div
             style={{
-              marginBottom: "15px",
+              marginBottom:
+                "15px",
               color: "#777",
             }}
           >
-            Bill No : {billNumber}
+            Bill No :
+            {billNumber}
           </div>
 
           <input
             placeholder="Customer Name"
             value={customer}
             onChange={(e) =>
-              setCustomer(e.target.value)
+              setCustomer(
+                e.target.value
+              )
             }
             style={{
               width: "100%",
               padding: "12px",
-              borderRadius: "10px",
-              border: "1px solid #ccc",
-              marginBottom: "20px",
+              borderRadius:
+                "10px",
+              border:
+                "1px solid #ccc",
+              marginBottom:
+                "20px",
             }}
           />
 
@@ -872,9 +1083,12 @@ export default function RMHPOS() {
             <div
               key={item.id}
               style={{
-                borderBottom: "1px solid #eee",
-                paddingBottom: "12px",
-                marginBottom: "12px",
+                borderBottom:
+                  "1px solid #eee",
+                paddingBottom:
+                  "12px",
+                marginBottom:
+                  "12px",
               }}
             >
               <div
@@ -884,35 +1098,46 @@ export default function RMHPOS() {
                     "space-between",
                 }}
               >
-                <strong>{item.name}</strong>
+                <strong>
+                  {item.name}
+                </strong>
 
                 <strong>
                   ₹
-                  {item.price * item.qty}
+                  {item.price *
+                    item.qty}
                 </strong>
               </div>
 
               <div
                 style={{
                   display: "flex",
-                  alignItems: "center",
+                  alignItems:
+                    "center",
                   gap: "10px",
-                  marginTop: "10px",
+                  marginTop:
+                    "10px",
                 }}
               >
                 <button
                   onClick={() =>
-                    decreaseQty(item.id)
+                    decreaseQty(
+                      item.id
+                    )
                   }
                 >
                   -
                 </button>
 
-                <span>{item.qty}</span>
+                <span>
+                  {item.qty}
+                </span>
 
                 <button
                   onClick={() =>
-                    increaseQty(item.id)
+                    increaseQty(
+                      item.id
+                    )
                   }
                 >
                   +
@@ -923,19 +1148,29 @@ export default function RMHPOS() {
 
           {/* TOTAL */}
 
-          <div style={{ marginTop: "25px" }}>
+          <div
+            style={{
+              marginTop: "25px",
+            }}
+          >
             <div
               style={{
                 display: "flex",
                 justifyContent:
                   "space-between",
-                marginBottom: "10px",
+                marginBottom:
+                  "10px",
               }}
             >
-              <span>GST Included</span>
+              <span>
+                GST Included
+              </span>
 
               <span>
-                ₹{gst.toFixed(2)}
+                ₹
+                {gst.toFixed(
+                  2
+                )}
               </span>
             </div>
 
@@ -945,30 +1180,44 @@ export default function RMHPOS() {
                 justifyContent:
                   "space-between",
                 fontSize: "32px",
-                fontWeight: "bold",
+                fontWeight:
+                  "bold",
                 color: "#7b0f1d",
               }}
             >
-              <span>Total</span>
+              <span>
+                Total
+              </span>
 
               <span>
-                ₹{total.toFixed(2)}
+                ₹
+                {total.toFixed(
+                  2
+                )}
               </span>
             </div>
           </div>
 
+          {/* PRINT */}
+
           <button
-            onClick={printReceipt}
+            onClick={
+              printReceipt
+            }
             style={{
               width: "100%",
               padding: "18px",
-              background: "#7b0f1d",
+              background:
+                "#7b0f1d",
               color: "white",
               border: "none",
-              borderRadius: "12px",
+              borderRadius:
+                "12px",
               marginTop: "25px",
-              cursor: "pointer",
-              fontWeight: "bold",
+              cursor:
+                "pointer",
+              fontWeight:
+                "bold",
               fontSize: "18px",
             }}
           >
